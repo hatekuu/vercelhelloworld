@@ -69,7 +69,7 @@ const authRoutes = (client) => {
         await usersCollection.insertOne(user);
 
         const emailToken = jwt.sign({ email }, process.env.JWT_SECRET_ACCESS, { expiresIn: '1d' });
-        const url = `http://localhost:3000/auth/verify-email/${emailToken}`;
+        const url = `${process.env.APP_URL}/auth/verify-email/${emailToken}`;
 
         await transporter.sendMail({
             to: email,
@@ -141,7 +141,7 @@ const authRoutes = (client) => {
         if (!user) return res.status(404).send('Email does not exist');
 
         const resetToken = jwt.sign({ username: user.username }, process.env.JWT_SECRET_ACCESS, { expiresIn: '15m' });
-        const resetLink = `http://localhost:3000/auth/reset-password/${resetToken}`;
+        const resetLink = `${process.env.APP_URL}/auth/reset-password/${resetToken}`;
 
         await transporter.sendMail({
             to: email,
