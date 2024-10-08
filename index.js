@@ -8,8 +8,13 @@ require('dotenv').config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Middleware
+// Middleware để parse JSON
 app.use(express.json());
+
+// Cấu hình CORS - Đặt trước các route để áp dụng cho tất cả yêu cầu
+app.use(cors({
+    origin: process.env.URL_ORIGIN // lấy URL từ file .env (vd: http://localhost:3000)
+}));
 
 // Kết nối tới MongoDB
 const client = new MongoClient(process.env.MONGO_URI);
@@ -20,11 +25,6 @@ client.connect(err => {
     }
     console.log('Connected to MongoDB');
 });
-
-// CORS - cấu hình đúng, đặt trước các route
-app.use(cors({
-    origin: process.env.URL_ORIGIN // chỉ cho phép từ origin này
-}));
 
 // Đường dẫn xác thực
 app.use('/auth', authRoutes(client));
