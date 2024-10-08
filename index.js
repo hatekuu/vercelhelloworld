@@ -1,16 +1,31 @@
+// server.js
 const express = require('express');
-const app = express();
-const PORT = 3000;
+const { MongoClient } = require('mongodb');
 
-// Middleware để phân tích body JSON
+require('dotenv').config();
+
+const app = express();
+const PORT = process.env.PORT;
+
+// Middleware
 app.use(express.json());
 
-// Định nghĩa một route đơn giản
+// Kết nối tới MongoDB
+const client = new MongoClient(process.env.MONGO_URI);
+client.connect(err => {
+    if (err) {
+        console.error('Failed to connect to the database:', err);
+        return;
+    }
+    console.log('Connected to MongoDB');
+});
+
+// Đường dẫn Hello World
 app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
 
-// Bắt đầu server
+// Khởi động server
 app.listen(PORT, () => {
-    console.log(`Server is running on http://localhost:${PORT}`);
+    console.log(`Server is running on port ${PORT}`);
 });
