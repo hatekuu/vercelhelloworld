@@ -63,6 +63,10 @@ const authRoutes = (client) => {
     // Đăng ký người dùng và gửi email xác thực
     router.post('/register', async (req, res) => {
         const { username, password, email } = req.body;
+        const check = await usersCollection.findOne({ username });
+        if (check){
+            return res.status(403).send('User name is already used');
+        }
         const hashedPassword = await bcrypt.hash(password, 10);
 
         const user = { username, password: hashedPassword, email, role: 'user', verified: false };
