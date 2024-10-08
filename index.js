@@ -1,4 +1,3 @@
-// server.js
 const express = require('express');
 const cors = require('cors');
 const { MongoClient } = require('mongodb');
@@ -22,6 +21,11 @@ client.connect(err => {
     console.log('Connected to MongoDB');
 });
 
+// CORS - cấu hình đúng, đặt trước các route
+app.use(cors({
+    origin: process.env.URL_ORIGIN // chỉ cho phép từ origin này
+}));
+
 // Đường dẫn xác thực
 app.use('/auth', authRoutes(client));
 
@@ -29,12 +33,7 @@ app.use('/auth', authRoutes(client));
 app.get('/', (req, res) => {
     res.send('Hello, World!');
 });
-app.use(cors());
 
-// Or enable CORS for specific origins
-app.use(cors({
-    origin: `${process.env.URL_ORGIN}` // chỉ cho phép từ origin này
-}));
 // Khởi động server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
