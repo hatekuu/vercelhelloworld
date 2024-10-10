@@ -4,6 +4,7 @@ const express = require('express');
 const {logout} = require('../userFuntions/logout') 
 const {register}= require('../userFuntions/register')
 const {verifyEmail}= require('../userFuntions/verifyEmail')
+const {login}= require('../userFuntions/login')
 const authRoutes = (client) => {
     const router = express.Router();
     const usersCollection = client.db('3Dprint').collection('users');
@@ -47,7 +48,7 @@ const authRoutes = (client) => {
 
     // Đăng nhập
     router.post('/login', async (req, res) => {
-    
+        login(req,res,usersCollection)
     });
 
     // Gửi email đặt lại mật khẩu
