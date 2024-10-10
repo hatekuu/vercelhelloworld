@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
 const nodemailer = require('nodemailer');
 const express = require('express');
-
+const {addTokenToBlacklist }= require ('../serverFuntion/addTokenToBlackList')
 const authRoutes = (client) => {
     const router = express.Router();
     const usersCollection = client.db('3Dprint').collection('users');
@@ -17,14 +17,7 @@ const authRoutes = (client) => {
     });
 
     // Thêm token vào danh sách đen
-    const addTokenToBlacklist = async (token) => {
-        const decoded = jwt.decode(token);
-        if (!decoded) throw new Error('Invalid token');
-        const expiration = decoded.exp * 1000;
-        const expireAt = new Date(expiration);
-
-        await blacklistedTokensCollection.insertOne({ token, expireAt });
-    };
+   
 
     const logActivity = async (user, activity) => {
         await usersCollection.updateOne(
@@ -196,22 +189,8 @@ const authRoutes = (client) => {
     });
 
     // Đăng xuất và đưa token vào danh sách đen
-    router.post('/logout', verifyToken, async (req, res) => {
-        const token = req.headers['authorization'].split(' ')[1];
-
-        await addTokenToBlacklist(token);
-
-        const { username } = req.user;
-        const result = await usersCollection.updateOne(
-            { username },
-            { $unset: { refreshToken: "" } }
-        );
-
-        if (result.modifiedCount === 0) {
-            return res.status(400).send('User not found or already logged out');
-        }
-
-        res.send('Logout successful');
+    router.post('/logout', verifyToken, (req, res) => {
+        logout(req, res ); // Gọi đến controller logout
     });
 
     // Lấy thông tin người dùng
