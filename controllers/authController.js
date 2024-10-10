@@ -1,31 +1,13 @@
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcrypt');
-const nodemailer = require('nodemailer');
 const express = require('express');
-const {addTokenToBlacklist }= require ('../serverFuntion/addTokenToBlackList')
+const {logout} = require('../userFuntions/logout') 
+const {register}= require('../userFuntions/register')
+const {verifyEmail}= require('../userFuntions/verifyEmail')
 const authRoutes = (client) => {
     const router = express.Router();
     const usersCollection = client.db('3Dprint').collection('users');
     const blacklistedTokensCollection = client.db('3Dprint').collection('blacklistedTokens');
-
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS
-        }
-    });
-
-    // Thêm token vào danh sách đen
-   
-
-    const logActivity = async (user, activity) => {
-        await usersCollection.updateOne(
-            { username: user.username },
-            { $push: { activityLog: { activity, date: new Date() } } }
-        );
-    };
-
     // Middleware xác thực JWT token
     const verifyToken = async (req, res, next) => {
         const authHeader = req.headers['authorization'];
@@ -55,79 +37,17 @@ const authRoutes = (client) => {
 
     // Đăng ký người dùng và gửi email xác thực
     router.post('/register', async (req, res) => {
-        const { username, password, email } = req.body;
-        const check = await usersCollection.findOne({ username });
-        if (check){
-            return res.status(403).send('User name is already used');
-        }
-        const hashedPassword = await bcrypt.hash(password, 10);
-
-        const user = { username, password: hashedPassword, email, role: 'user', verified: false };
-        await usersCollection.insertOne(user);
-
-        const emailToken = jwt.sign({ email }, process.env.JWT_SECRET_ACCESS, { expiresIn: '1d' });
-        const url = `${process.env.APP_URL}/auth/verify-email/${emailToken}`;
-
-        await transporter.sendMail({
-            to: email,
-            subject: 'Verify Your Email',
-            html: `<p>Please click the link below to verify your email:</p><a href="${url}">Verify Email</a>`
-        });
-
-        res.status(201).send('Registration successful, please verify your email.');
+      register(res,req,usersCollection)
     });
 
     // Xác thực email
     router.get('/verify-email/:token', async (req, res) => {
-        try {
-            const { token } = req.params;
-            const { email } = jwt.verify(token, process.env.JWT_SECRET_ACCESS);
-
-            const result = await usersCollection.updateOne(
-                { email },
-                { $set: { verified: true } }
-            );
-
-            if (result.modifiedCount === 0) {
-                return res.status(400).send('Invalid or expired verification link');
-            }
-
-            res.send('Email verified successfully. You can now log in.');
-        } catch (error) {
-            res.status(400).send('Invalid or expired verification link');
-        }
+        verifyEmail(req,res,usersCollection)
     });
 
     // Đăng nhập
     router.post('/login', async (req, res) => {
-        const { username, password } = req.body;
-        const user = await usersCollection.findOne({ username });
-
-        if (!user || !(await bcrypt.compare(password, user.password))) {
-            return res.status(401).send('Invalid credentials');
-        }
-
-        if (!user.verified) {
-            return res.status(403).send('Please verify your email before logging in.');
-        }
-
-        const accessToken = jwt.sign(
-            { username: user.username, role: user.role },
-            process.env.JWT_SECRET_ACCESS,
-            { expiresIn: '15m' }
-        );
-        const refreshToken = jwt.sign(
-            { username: user.username, role: user.role },
-            process.env.JWT_SECRET_REFRESH,
-            { expiresIn: '7d' }
-        );
-
-        await usersCollection.updateOne(
-            { username },
-            { $set: { refreshToken } }
-        );
-        await logActivity(user, 'User logged in');
-        res.json({ accessToken, refreshToken });
+    
     });
 
     // Gửi email đặt lại mật khẩu
@@ -190,7 +110,7 @@ const authRoutes = (client) => {
 
     // Đăng xuất và đưa token vào danh sách đen
     router.post('/logout', verifyToken, (req, res) => {
-        logout(req, res ); // Gọi đến controller logout
+        logout(req, res, usersCollection, blacklistedTokensCollection); // Gọi đến controller logout
     });
 
     // Lấy thông tin người dùng
