@@ -1,6 +1,6 @@
 // authController.js
 const jwt = require('jsonwebtoken');
-const { addTokenToBlacklist, logActivity } = require('../serverFuntion/addTokenToBlackList'); // Tách ra các hàm utility nếu cần
+const { addTokenToBlacklist } = require('../../serverFuntion/addTokenToBlackList'); // Tách ra các hàm utility nếu cần
 
 // Controller cho việc đăng xuất
 const logout = async (req, res, usersCollection, blacklistedTokensCollection) => {

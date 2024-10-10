@@ -1,13 +1,18 @@
 
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
-const { sendConfirmationEmail } = require('./emailService'); // Import hàm gửi email
-const { logActivity } = require('./utils'); // Import hàm log nếu cần
+const { sendConfirmationEmail } = require('../../serverFuntion/emailService'); // Import hàm gửi email
+const { logActivity } = require('../../serverFuntion/addTokenToBlackList'); // Import hàm log nếu cần
 
 // Controller đăng ký
 const register = async (req, res, usersCollection) => {
+    
     const { username, email, password } = req.body;
-
+  
+    
+    if (!username || !email || !password) {
+        return res.status(400).send('All fields are required');
+    }
     // Kiểm tra xem email hoặc username đã tồn tại chưa
     const userExist = await usersCollection.findOne({ $or: [{ email }, { username }] });
     if (userExist) {
@@ -42,5 +47,5 @@ const register = async (req, res, usersCollection) => {
 };
 
 module.exports = {
-    register,
+    register
 };

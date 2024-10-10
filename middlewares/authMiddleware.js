@@ -1,8 +1,10 @@
 // middlewares/authMiddleware.js
 const jwt = require('jsonwebtoken');
-const { blacklistedTokensCollection } = require('../db'); // Import your blacklisted token collection
+const { getDB } = require('../db'); // Lấy database từ db.js
 
 const verifyToken = async (req, res, next) => {
+    const db = getDB(); // Lấy đối tượng db
+    const blacklistedTokensCollection =  db.collection('blacklistedTokens');
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
     

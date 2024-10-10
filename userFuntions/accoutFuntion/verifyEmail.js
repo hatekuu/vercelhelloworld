@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const verifyEmail = async (req, res, usersCollection) => {
 try {
     const { token } = req.params;
-    const { email } = jwt.verify(token, process.env.JWT_SECRET_ACCESS);
+    const { email } = jwt.verify(token, process.env.JWT_SECRET_EMAIL);
 
     const result = await usersCollection.updateOne(
         { email },

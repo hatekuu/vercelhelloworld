@@ -1,5 +1,7 @@
 const jwt = require('jsonwebtoken');
-const {logActivity}= require('../serverFuntion/addTokenToBlackList')
+const bcrypt = require('bcrypt');
+
+const {logActivity}= require('../../serverFuntion/addTokenToBlackList')
 const login = async (req, res, usersCollection) => {
 const { username, password } = req.body;
 const user = await usersCollection.findOne({ username });
@@ -27,8 +29,8 @@ await usersCollection.updateOne(
     { username },
     { $set: { refreshToken } }
 );
-await logActivity(user, 'User logged in');
+await logActivity(user, 'User logged in',usersCollection);
 res.json({ accessToken, refreshToken });}
 module.exports = {
-    login,
+    login
 };
