@@ -1,10 +1,10 @@
-const { ObjectId } = require('mongodb');  // Hoặc BSON tùy theo cách bạn import
+const { ObjectId } = require('mongodb');  // Hoặc BSON nếu bạn dùng bson package
 
 const getGcode = async (req, res, gcodeCollection) => {
     try {
-        // Tìm document trong gcodeCollection theo _id
+        // Tạo một đối tượng ObjectId từ chuỗi _id
         const document = await gcodeCollection.findOne({
-            "_id": ObjectId("6734c8ba7f82139a4f0092b5")  // Chuyển chuỗi thành ObjectId
+            "_id": new ObjectId("6734c8ba7f82139a4f0092b5")  // Sử dụng `new ObjectId()`
         });
 
         // Nếu không tìm thấy document
@@ -19,7 +19,6 @@ const getGcode = async (req, res, gcodeCollection) => {
         res.status(500).send('Lỗi server');
     }
 };
-
 
 module.exports = {
     getGcode,
