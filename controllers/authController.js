@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const express = require('express');
 const { getDB } = require('../db');
 const { login, logout, register, verifyEmail, forgotPassword, resetPassword, refreshToken } = require('../userFuntions/accoutFuntion/accoutFuntion');
-const {uploadFile, getGcode} = require("../userFuntions/clientFution/clientFuntion")
+const {uploadFile, getGcode,updateGcode} = require("../userFuntions/clientFution/clientFuntion")
 const { verifyToken, verifyRole } = require('../middlewares/authMiddleware');
 const authRoutes = () => {
     const router = express.Router();
@@ -15,6 +15,9 @@ const authRoutes = () => {
     // Đăng ký người dùng và gửi email xác thực
     router.get('/gcode', async (req, res) => {
         await getGcode(req, res, gcodeCollection);
+    });
+    router.get('/updategcode', async (req, res) => {
+        await updateGcode(req, res, gcodeCollection);
     });
     router.post('/register', async (req, res) => {
         await register(req, res, usersCollection);

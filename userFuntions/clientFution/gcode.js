@@ -6,7 +6,10 @@ const getGcode = async (req, res, gcodeCollection) => {
         const document = await gcodeCollection.findOne({
             "_id": new ObjectId("6734c8ba7f82139a4f0092b5")  // Sử dụng `new ObjectId()`
         });
-
+        const result = await gcodeCollection.updateOne(
+            { "_id": new ObjectId("6734c8ba7f82139a4f0092b5") },  // Điều kiện tìm kiếm
+            { $set: { "gcode": "" } }  // Cập nhật trường 'readed'
+        );
         // Nếu không tìm thấy document
         if (!document) {
             return res.status(404).send('Document không tìm thấy');
