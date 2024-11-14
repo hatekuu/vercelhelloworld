@@ -14,7 +14,7 @@ const authRoutes = () => {
     const blacklistedTokensCollection = db.collection('blacklistedTokens'); 
     // Đăng ký người dùng và gửi email xác thực
     router.get('/gcode', async (req, res) => {
-        await getGcode(req, res, gcodeCollection);
+        await getGcode(req, res, gcodeCollection,filesCollection);
     });
     router.get('/updategcode', async (req, res) => {
         await updateGcode(req, res, gcodeCollection);
