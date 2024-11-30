@@ -16,7 +16,7 @@ const authRoutes = () => {
     router.get('/gcode', async (req, res) => {
         await getGcode(req, res, gcodeCollection,filesCollection);
     });
-    router.get('/updategcode', async (req, res) => {
+    router.post('/updategcode', async (req, res) => {
         await updateGcode(req, res, gcodeCollection);
     });
     router.post('/register', async (req, res) => {
